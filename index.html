@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>verbos regular</title>
+    <style>
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+        }
+        h1{
+            text-align: center;
+        }
+        .hide{
+            display: none;
+        }
+        #edit{
+            cursor: pointer;
+            user-select: none;
+            text-decoration: underline;
+        }
+
+        #output{
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        }
+
+        .button-3 {
+            appearance: none;
+            background-color: #2ea44f;
+            border: 1px solid rgba(27, 31, 35, .15);
+            border-radius: 6px;
+            box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
+            box-sizing: border-box;
+            color: #fff;
+            cursor: pointer;
+            display: inline-block;
+            font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+            padding: 6px 16px;
+            position: relative;
+            text-align: center;
+            text-decoration: none;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .button-3:hover {
+            background-color: #2c974b;
+        }
+
+        .button-3:active {
+            background-color: #298e46;
+            box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
+        }
+    </style>
+</head>
+<body style="padding:10px;margin:0;">
+    <h1>verbos regular</h1>
+    <div  style="flex-direction: column;display: flex; max-width: 600px; row-gap: 10px; margin: 0 auto;">
+        <div id="output" style="padding: 20px; display: inline-block; border-radius: 6px; box-shadow: 2px ;"></div>
+        <button class="button-3" id="go" style="width: 200px; margin: 0 auto; ">Actualizar</button>
+        <span id="edit">configurar palabras</span>
+        <textarea id="words" class="hide">tomar, hablar, comer, vivir, estudiar, trabajar, beber, bailar, caminar, aprender, escuchar, tocar, mirar, llevar, cantar, cocinar, escribir, nadar, pintar, leer, viajar</textarea>
+    </div>
+
+    <script>
+        class Exercise{
+            _output = document.getElementById("output");
+            _textwords = document.getElementById("words");
+            _go = document.getElementById("go");
+            _edit = document.getElementById("edit");
+            
+            _subjects = [ "yo", "tú", "él/ella/usted", "nosotros/nosotras", "vosotros/vosotras", "ellos/ellas/ustedes" ];
+
+            constructor(output, inputwords, startButton){
+                this._output = output;
+                this._textwords = inputwords;
+                this._go = startButton;
+            }
+
+            _getRandomInt(max) {
+                return Math.floor(Math.random() * max);
+            }
+            
+            start(){
+                const words = this._textwords.value.split(",").map(w => w.trim()).filter( w => !!w);
+                const subject = this._subjects[this._getRandomInt(this._subjects.length)];
+                const word = words[this._getRandomInt(words.length)];
+
+                this._output.innerHTML = "<strong>" + subject + "</strong> | " + word;
+            }
+
+            init(){
+                this._go.addEventListener("click", () => {
+                    this.start();
+                });
+                this._edit.addEventListener("click", () => {
+                    if(this._textwords.className.split(" ").indexOf('hide') > -1){
+                        this._textwords.className = this._textwords.className.replace('hide', '');
+                    }else{
+                        this._textwords.className = this._textwords.className  + ' hide';
+                    }
+                }); 
+            }
+
+        };
+
+        const e = new Exercise(document.getElementById("output"), document.getElementById("words"), document.getElementById("go"));
+
+        e.init();
+        e.start();
+    </script>
+</body>
+</html>
