@@ -26,6 +26,19 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
         }
 
+        #words{
+            width: 100%;
+        }
+
+        .hint{
+            padding: 10px 0;
+            margin-top: 10px;
+            text-align: center;
+            border: 1px solid #ef9400c4;
+            background-color: #fbebd1;
+            border-radius: 6px;
+        }
+
         .button-3 {
             appearance: none;
             background-color: #2ea44f;
@@ -66,8 +79,14 @@
     <div  style="flex-direction: column;display: flex; max-width: 600px; row-gap: 10px; margin: 0 auto;">
         <div id="output" style="padding: 20px; display: inline-block; border-radius: 6px; box-shadow: 2px ;"></div>
         <button class="button-3" id="go" style="width: 200px; margin: 0 auto; ">Actualizar</button>
-        <span id="edit">configurar palabras</span>
-        <textarea id="words" class="hide">tomar, hablar, comer, vivir, estudiar, trabajar, beber, bailar, caminar, aprender, escuchar, tocar, mirar, llevar, cantar, cocinar, escribir, nadar, pintar, leer, viajar</textarea>
+        <span id="edit"><span class="hide">guardar palabras</span><span>configurar palabras</span></span>
+        <div class="hide">
+            <textarea id="words" style="min-height: 150px;">tomar, hablar, comer, vivir, estudiar, trabajar, beber, bailar, caminar, aprender, escuchar, tocar, mirar, llevar, cantar, cocinar, escribir, nadar, pintar, leer, viajar</textarea>
+            <div class="hint">
+                Puedes guardar tu configuaracióin con marcador de browser.<br>
+                Du kannst deine Einstellung mit einem Browserlesezeichen speichern.
+            </div>
+        </div>
     </div>
 
     <script>
@@ -90,11 +109,49 @@
             }
             
             start(){
-                const words = this._textwords.value.split(",").map(w => w.trim()).filter( w => !!w);
+
+                this._getVerbsFromUrl();
+
+                const words = this._getTextwordsArray();
                 const subject = this._subjects[this._getRandomInt(this._subjects.length)];
                 const word = words[this._getRandomInt(words.length)];
 
                 this._output.innerHTML = "<strong>" + subject + "</strong> | " + word;
+
+            }
+
+            _getVerbsFromUrl(){
+                const urlParams = new URLSearchParams(window.location.search);
+                if(!urlParams.has('verbos')){
+                    return;
+                }
+                const verbos = urlParams.get("verbos").split(",");
+                if(verbos.length > 0){
+                    this._textwords.value = verbos.join(", ");
+                }
+            }
+
+            _getTextwordsArray(){
+                return this._textwords.value.split(",").map(w => w.trim()).filter( w => !!w);
+            }
+
+            _saveVerbsToUrl(){
+                const verbos = this._getTextwordsArray().join(",");
+                const url = new URL(window.location);
+                url.searchParams.has("verbos") ? url.searchParams.set("verbos", verbos) : url.searchParams.append("verbos", verbos);
+                history.pushState({}, null, url);
+            }
+
+            _toggleConfig(){
+                if(this._textwords.parentElement.className.split(" ").indexOf("hide") > -1){
+                    this._textwords.parentElement.className = this._textwords.className.replace("hide", "");
+                    this._edit.firstChild.className = "";
+                    this._edit.lastChild.className = "hide";
+                }else{
+                    this._textwords.parentElement.className = this._textwords.className  + " hide";
+                    this._edit.firstChild.className = "hide";
+                    this._edit.lastChild.className = "";
+                }
             }
 
             init(){
@@ -102,20 +159,20 @@
                     this.start();
                 });
                 this._edit.addEventListener("click", () => {
-                    if(this._textwords.className.split(" ").indexOf('hide') > -1){
-                        this._textwords.className = this._textwords.className.replace('hide', '');
-                    }else{
-                        this._textwords.className = this._textwords.className  + ' hide';
-                    }
-                }); 
+                    this._toggleConfig();
+                });     
+                this._textwords.addEventListener("change", ()=>{this._saveVerbsToUrl()});
             }
 
         };
 
-        const e = new Exercise(document.getElementById("output"), document.getElementById("words"), document.getElementById("go"));
+        window.onload = function(){
+            const e = new Exercise(document.getElementById("output"), document.getElementById("words"), document.getElementById("go"));
 
-        e.init();
-        e.start();
+            e.init();
+            e.start();
+        }
+
     </script>
 </body>
 </html>
